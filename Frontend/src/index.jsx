@@ -1,6 +1,6 @@
 import Header from "./components/Header/Header";
 import Page1 from "./components/Page1/Page1";
-import Page2 from "./components/Page2/Page2";
+import GroupSetup from "./components/GroupSetup/GroupSetup";
 import Page3 from "./components/Page3/Page3";
 import Footer from "./components/Footer/Footer";
 import Login from "./components/Login/Login";
@@ -10,14 +10,13 @@ import MapComponent from "./components/MapComponent/MapComponent";
 import Map from "./pages/Map"
 import Home from "./pages/Home";
 import Popup from "./components/Popup/Popup";
-
-
+import BackgroundBubbles from "./components/BackgroundBubbles/BackgroundBubbles";
 
 
 export {
     Header,
     Page1,
-    Page2,
+    GroupSetup,
     Page3,
     Footer,
     Login,
@@ -27,4 +26,5 @@ export {
     Map,
     Home,
     Popup,
+    BackgroundBubbles,
 }

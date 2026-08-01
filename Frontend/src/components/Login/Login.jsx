@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerVisFunc, loginVisFunc, popupData, popupVisFunc, joinVisFunc } from '../../features/visibilitySlice';
-import { setMyName, setAccessAndRefreshToken } from '../../features/locationSlice.js';
+import { setMyName, setAccessAndRefreshToken, setAvatar } from '../../features/locationSlice.js';
 import Input from '../Input/Input.jsx';
 import Button from '../Button/Button.jsx';
-import { useSocket } from '../../useSocket.js';
+import { useSocket } from '../../hooks/useSocket.js';
+import { SERVER_URL } from '../../config.js';
 
 function Login() {
   const dispatch = useDispatch();
@@ -40,14 +41,6 @@ function Login() {
     }, 3000);
   };
 
-  useEffect(() => {
-    const lastPage = localStorage.getItem("lastVisitedPage");
-    if (lastPage === "map") {
-      leaveRoom(joinCode, user);
-    }
-    localStorage.removeItem("lastVisitedPage");
-  }, [location]);
-
   const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
       showPopup("Please fill in all fields", "red");
@@ -62,9 +55,10 @@ function Login() {
     };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/users/login`, {
+      const response = await fetch(`${SERVER_URL}/users/login`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(credentials)
       });
 
@@ -74,6 +68,7 @@ function Login() {
         if (isGuest) dispatch(joinVisFunc());
         showPopup("Welcome back! 🎉", "green");
         dispatch(setMyName(data.data.user.name));
+        dispatch(setAvatar(data.data.user.avatar || ""));
         dispatch(setAccessAndRefreshToken({
           accessToken: data.data.accessToken,
           refreshToken: data.data.refreshToken

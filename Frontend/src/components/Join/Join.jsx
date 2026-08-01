@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { joinVisFunc, popupData, popupVisFunc } from '../../features/visibilitySlice';
-import { useNavigate } from 'react-router-dom';
-import { setMyName } from '../../features/locationSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { setMyName, setIsMapActive } from '../../features/locationSlice';
 import Popup from '../Popup/Popup';
 import Button from '../Button/Button';
-import { useSocket } from '../../useSocket';
+import { useSocket } from '../../hooks/useSocket.js';
 
 function Join() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { leaveRoom } = useSocket();
   
   const [copiedField, setCopiedField] = useState(null);
@@ -21,6 +22,9 @@ function Join() {
 
   const handleClose = () => {
     dispatch(joinVisFunc());
+    if (location.pathname.startsWith('/jxcd')) {
+      navigate('/');
+    }
   };
 
   const showPopup = (message, color) => {
@@ -44,15 +48,11 @@ function Join() {
 
   const handleJoinMap = () => {
     dispatch(joinVisFunc());
-    navigate("/map");
+    dispatch(setIsMapActive(true));
+    navigate("/");
   };
 
   useEffect(() => {
-    const lastPage = localStorage.getItem("lastVisitedPage");
-    if (lastPage === "map") {
-      leaveRoom(joincode, user);
-    }
-    localStorage.removeItem("lastVisitedPage");
   }, [location]);
 
   if (joinVisibility !== 'visible') return null;

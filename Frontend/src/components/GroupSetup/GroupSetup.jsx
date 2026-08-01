@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { joinVisFunc, popupData, popupVisFunc, registerVisFunc} from '../../features/visibilitySlice'
-import { useSocket } from '../../useSocket.js';
+import { useSocket } from '../../hooks/useSocket.js';
 import { setJoinCodeURL } from '../../features/locationSlice.js';
 
-function Page2() {
+function GroupSetup() {
 
     const dispatch = useDispatch()
     const {joinRoom} = useSocket()
@@ -52,8 +52,8 @@ function Page2() {
         }
         else {
             let code = generateStringWithSH()
-            const url =  `${import.meta.env.VITE_FRONTEND_URL}/jxcd/${code}`
-            joinRoom(code)
+            const url =  `${window.location.origin}/jxcd/${code}`
+            joinRoom(code, user)
             dispatch(setJoinCodeURL({
                 joinCode: code,
                 joinURL: url
@@ -74,7 +74,7 @@ function Page2() {
             }
             dispatch(setJoinCodeURL({
                 joinCode: joinCode,
-                joinURL: `${import.meta.env.VITE_FRONTEND_URL}/jxcd/${joinCode}`
+                joinURL: `${window.location.origin}/jxcd/${joinCode}`
             }))
             dispatch(joinVisFunc())
         }
@@ -98,11 +98,10 @@ function Page2() {
             >
                 <strong>Start Your Journey Together! </strong><br />
                First step to sharing your adventures and staying connected with friends and family.  Simply tap on the “Create Group” button to instantly generate a unique join code and URL. This code and URL are your keys to inviting others.</p>
-
-            <p 
-            className='mt-10' 
-            >
+            <p className='mt-10'>
                 Share these with your friends and family so they can join your group and start adventuring on the same map. </p>
+
+
         </div>
 
         <div className='h-full w-5/12 bg-slate-300 p-20 py-32' >
@@ -143,4 +142,4 @@ function Page2() {
   )
 }
 
-export default Page2
+export default GroupSetup

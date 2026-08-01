@@ -9,9 +9,13 @@ const initialState = {
     joinURL : "",
     group:{
     },
-    messages:{
-
-    }
+    messages: [],
+    waitlist: [],
+    isWaiting: false,
+    isHost: false,
+    hostName: "",
+    avatar: "",
+    isMapActive: false
 };
 
 export const locationSlice = createSlice({
@@ -22,6 +26,12 @@ export const locationSlice = createSlice({
             state.group = {}
             state.joinCode = ""
             state.joinURL  = ""
+            state.waitlist = []
+            state.isWaiting = false
+            state.isHost = false
+            state.hostName = ""
+            state.avatar = ""
+            state.isMapActive = false
         },
         removeUser : (state, action) => {
             
@@ -68,20 +78,40 @@ export const locationSlice = createSlice({
             state.group[name] = action.payload
         },
         setMessage: (state, action) => {
-            const name = action.payload.name
-            state.messages[name] = action.payload.message
+            const { name, message, id } = action.payload;
+            state.messages.push({
+                id: id,
+                senderName: name,
+                message: message
+            });
         },
-        clearMessage: (state, action) => {
-            // console.log(state.messages)
-            const name = action.payload.name
-            state.messages[name] = ""
+        removeMessage: (state, action) => {
+            state.messages = state.messages.filter(msg => msg.id !== action.payload);
         },
         setGuest: (state, action) => {
             state.isGuest = true
+        },
+        setWaitlist: (state, action) => {
+            state.waitlist = action.payload;
+        },
+        setIsWaiting: (state, action) => {
+            state.isWaiting = action.payload;
+        },
+        setIsHost: (state, action) => {
+            state.isHost = action.payload;
+        },
+        setHostName: (state, action) => {
+            state.hostName = action.payload;
+        },
+        setAvatar: (state, action) => {
+            state.avatar = action.payload;
+        },
+        setIsMapActive: (state, action) => {
+            state.isMapActive = action.payload;
         }
         
     }
 });
 
-export const { setMyLoc , setMyName, setAccessAndRefreshToken, updateGroup, setJoinCodeURL, resetGroup,setMessage,clearMessage,setGuest, removeUser } = locationSlice.actions;
+export const { setMyLoc , setMyName, setAccessAndRefreshToken, updateGroup, setJoinCodeURL, resetGroup,setMessage,removeMessage,setGuest, removeUser, setWaitlist, setIsWaiting, setIsHost, setHostName, setAvatar, setIsMapActive } = locationSlice.actions;
 export default locationSlice.reducer;

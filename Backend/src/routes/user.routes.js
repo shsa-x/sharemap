@@ -1,5 +1,5 @@
 import {Router } from "express"
-import {loginUser, logoutUser, registerUser} from "../controller/user.controller.js"
+import {loginUser, logoutUser, registerUser, getCurrentUser} from "../controller/user.controller.js"
 import { validateUser } from "../middleware/auth.middleware.js";
 
 
@@ -17,6 +17,11 @@ router.route("/login").post(
 router.route("/logout").post(
     validateUser,
     logoutUser
+)
+
+router.route("/current-user").get(
+    validateUser,
+    getCurrentUser
 )
 
 

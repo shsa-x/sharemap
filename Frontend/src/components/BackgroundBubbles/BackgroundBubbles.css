@@ -1,0 +1,35 @@
+.bubbles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  animation: glide infinite ease-in-out alternate;
+}
+
+.bubble-teal {
+  background-color: #00b8a9; /* Teal */
+  box-shadow: 0 0 8px rgba(0, 184, 169, 0.4);
+}
+
+.bubble-light {
+  background-color: #71c9ce; /* Lighter Cyan/Teal */
+  box-shadow: 0 0 6px rgba(113, 201, 206, 0.3);
+}
+@keyframes glide {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty));
+  }
+}
+

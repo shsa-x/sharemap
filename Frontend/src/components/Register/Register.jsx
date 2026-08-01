@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerVisFunc, loginVisFunc, popupData, popupVisFunc, joinVisFunc } from '../../features/visibilitySlice';
-import { setMyName, setAccessAndRefreshToken, setGuest } from '../../features/locationSlice.js';
-import { useSocket } from '../../useSocket.js';
+import { setMyName, setAccessAndRefreshToken, setGuest, setAvatar } from '../../features/locationSlice.js';
+import { useSocket } from '../../hooks/useSocket.js';
+import { SERVER_URL } from '../../config.js';
+
+const avatarUrls = [
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565088/avatar-9_jhyehx.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565088/avatar-1_n8mdtv.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565088/avatar-8_nkqgda.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565087/avatar-12_tcffvp.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565085/avatar-3_niwnye.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565084/avatar-4_zenjym.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565084/avatar-10_qf7uee.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565084/avatar-13_p1gjgi.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565084/avatar-11_af8vch.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565084/avatar-5_hflti5.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565083/avatar-7_xbupwf.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565083/avatar-2_kdbjqj.png",
+  "https://res.cloudinary.com/dfl8h4on4/image/upload/v1785565083/avatar-6_ceigpe.png"
+];
 
 function Register() {
   const dispatch = useDispatch();
@@ -13,19 +30,10 @@ function Register() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(() => avatarUrls[Math.floor(Math.random() * avatarUrls.length)]);
   
-  const joinCode = useSelector(state => state.locations.joinCode);
-  const user = useSelector(state => state.locations.user);
   const isGuest = useSelector(state => state.locations.isGuest);
   const registerVisibility = useSelector(state => state.visibility.registerVisibility);
-
-  useEffect(() => {
-    const lastPage = localStorage.getItem("lastVisitedPage");
-    if (lastPage === "map") {
-      leaveRoom(joinCode, user);
-    }
-    localStorage.removeItem("lastVisitedPage");
-  }, [location]);
 
   const handleClose = () => {
     dispatch(registerVisFunc());
@@ -68,12 +76,14 @@ function Register() {
       username: username.trim(),
       name: name.trim(),
       password: password,
+      avatar: selectedAvatar
     };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/users/register`, {
+      const response = await fetch(`${SERVER_URL}/users/register`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(userData)
       });
 
@@ -84,6 +94,7 @@ function Register() {
         if (isGuest) dispatch(joinVisFunc());
 
         dispatch(setMyName(data.data.user.name));
+        dispatch(setAvatar(data.data.user.avatar || selectedAvatar));
         dispatch(setAccessAndRefreshToken({
           accessToken: data.data.accessToken,
           refreshToken: data.data.refreshToken
@@ -131,14 +142,20 @@ function Register() {
         </button>
 
         <div className="pt-8 pb-6 px-8 text-center border-b border-gray-100">
-          <div className="flex justify-center mb-3">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="flex flex-col justify-center items-center mb-3">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center shadow-lg border-4 border-white mb-2 overflow-hidden">
               <img 
-                className="w-10 h-10" 
-                src="https://res.cloudinary.com/dfl8h4on4/image/upload/v1727085429/share_akcqet.png" 
-                alt="ShareMap Logo" 
+                className="w-full h-full object-cover" 
+                src={selectedAvatar} 
+                alt="Selected Avatar" 
               />
             </div>
+            <button 
+              onClick={() => setSelectedAvatar(avatarUrls[Math.floor(Math.random() * avatarUrls.length)])}
+              className="text-xs text-blue-600 font-semibold hover:text-blue-700 hover:underline focus:outline-none"
+            >
+              Try different icon
+            </button>
           </div>
           <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
           <p className="text-sm text-gray-500 mt-1">Join ShareMap and start sharing</p>

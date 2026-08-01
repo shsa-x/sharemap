@@ -18,7 +18,7 @@ const generateAccessAndRefreshToken = async(userId) => {
 const registerUser = asyncHandler(async(req, res) => {
     // console.log("It come till here")
     // console.log(req.body)
-    const {username, name, password} = req.body
+    const {username, name, password, avatar} = req.body
 
     if(!username || !name || !password){
         // console.log("Entered")
@@ -47,7 +47,8 @@ const registerUser = asyncHandler(async(req, res) => {
     const user = await User.create({
         username,
         name,
-        password
+        password,
+        avatar
     })
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
@@ -60,7 +61,8 @@ const registerUser = asyncHandler(async(req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 3600000 // 1 hour
     }
 
     return res.status(200)
@@ -122,6 +124,8 @@ const loginUser = asyncHandler(async(req, res) => {
         })
     }
 
+    user.sessionVersion = (user.sessionVersion || 1) + 1;
+    await user.save({ validateBeforeSave: false });
    
     const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
 
@@ -129,11 +133,17 @@ const loginUser = asyncHandler(async(req, res) => {
 
 
 
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 3600000 // 1 hour
+    }
+
     res
     .status(200)
-    .cookie("cookie", " by locin")
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken", refreshToken)
+    .cookie("cookie", " by locin", options)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
             200,
@@ -166,7 +176,7 @@ const logoutUser = asyncHandler(async(req, res) => {
 
     const options = {
         httpOnly: true,
-        secure : true
+        secure : process.env.NODE_ENV === 'production'
     }
 
     return res
@@ -182,9 +192,19 @@ const logoutUser = asyncHandler(async(req, res) => {
 
 })
 
+const getCurrentUser = asyncHandler(async(req, res) => {
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            "User fetched successfully",
+            req.user
+        )
+    )
+})
 
 export {
     loginUser,
     registerUser,
     logoutUser,
+    getCurrentUser
 }

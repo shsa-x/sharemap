@@ -14,6 +14,21 @@ const findPath = asyncHandler(async(req, res) => {
             success: false
         })
     }
+    
+    // Check if distance > 20000 meters (20km)
+    const distance = haversineDistance(
+        { lat: Number(source.lat), lng: Number(source.lng) },
+        { lat: Number(destination.lat), lng: Number(destination.lng) }
+    );
+    
+    if (distance > 20000) {
+        return res.status(400).json({
+            statusCode: 400,
+            message: "Distance too large! To save server resources, pathfinding is disabled for distances over 20km. 😖",
+            success: false
+        });
+    }
+
     // we are creating a box, with both coordinates as diagonal points
     // and fetching all the highways in that box
     const boxResult = boundingBox(source, destination)
