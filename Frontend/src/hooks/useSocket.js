@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import io from 'socket.io-client';
 import { setMessage, removeMessage, updateGroup, setWaitlist, setIsWaiting, setIsHost, setHostName } from '../features/locationSlice.js';
 import { decryptData, setSessionKey, getSessionKey } from '../utils/crypto.js';
-import { generateRSAKeyPair, generateAESGroupSessionKey, encryptWithPublicKey, decryptWithPrivateKey } from '../utils/asymmetricCrypto.js';
+import { generateRSAKeyPair, encryptWithPublicKey, decryptWithPrivateKey } from '../utils/asymmetricCrypto.js';
 
 import { SERVER_URL } from '../config.js';
 import { popupData, popupVisFunc } from '../features/visibilitySlice.js';
@@ -63,10 +63,13 @@ export function useSocket() {
 
     // PKI Handshake Events
     socketInstance.on("you_are_host", () => {
-       console.log("I am the host! Generating AES Session Key.");
+       // NOTE: We only set the isHost flag here.
+       // The AES session key is generated ONCE at group creation time (in GroupSetup.jsx)
+       // and must NOT be regenerated here — this event also fires on host reassignment
+       // (when the original host leaves), and regenerating would break encryption for
+       // all existing members who still hold the original session key.
+       console.log("I am the host!");
        dispatch(setIsHost(true));
-       const newSessionKey = generateAESGroupSessionKey();
-       setSessionKey(newSessionKey);
     });
 
     socketInstance.on("host_update", (hostName) => {
@@ -79,6 +82,14 @@ export function useSocket() {
        if (sessionKey) {
           const encryptedSessionKey = await encryptWithPublicKey(publicKey, sessionKey);
           socketInstance.emit("send_session_key", { targetSocketId, encryptedSessionKey });
+       } else {
+          // This should never happen if the host was assigned correctly (oldest member).
+          // If it does, the joiner will be stuck without a key — log loudly.
+          console.error(
+            `[CRITICAL] newUserJoined: I am the host but have NO session key! ` +
+            `Cannot send key to ${user} (${targetSocketId}). ` +
+            `This means host state was lost. User should rejoin.`
+          );
        }
     });
 

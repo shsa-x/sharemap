@@ -37,6 +37,16 @@ connectDB()
 
 const activeRooms = {};
 
+// Helper: pick the socket ID of the member who has been in the room the longest.
+// The oldest member is guaranteed to already hold the session key (they received it
+// via PKI handshake when they first joined), so they are the safest choice for host.
+function getOldestMember(roomId) {
+    const users = activeRooms[roomId].users;
+    return Object.keys(users).reduce((oldestId, currentId) => {
+        return users[currentId].joinedAt < users[oldestId].joinedAt ? currentId : oldestId;
+    });
+}
+
 io.on('connection', (socket) => {
     // console.log("A user connected");
 
@@ -54,15 +64,16 @@ io.on('connection', (socket) => {
         
         if (activeRooms[roomId].host === socket.id) {
             console.log(`[joinRoom] User '${user}' is the host of room ${roomId}`);
-            // First user becomes host
-            activeRooms[roomId].users[socket.id] = { user, publicKey };
+            // First user becomes host — record join time
+            activeRooms[roomId].users[socket.id] = { user, publicKey, joinedAt: Date.now() };
             socket.emit("you_are_host");
             socket.to(roomId).emit("userJoin", user);
             io.to(roomId).emit("host_update", user);
         } else {
             console.log(`[joinRoom] Room ${roomId} already exists. Host is ${activeRooms[roomId].host}`);
             console.log(`[joinRoom] Room ${roomId} allows direct join. Adding user '${user}'.`);
-            activeRooms[roomId].users[socket.id] = { user, publicKey };
+            // Record join time — used for oldest-member host selection on reassignment
+            activeRooms[roomId].users[socket.id] = { user, publicKey, joinedAt: Date.now() };
             // Tell host a new user joined so they can send the session key
             console.log(`[joinRoom] Notifying host ${activeRooms[roomId].host} about new user '${user}'`);
             io.to(activeRooms[roomId].host).emit("newUserJoined", {
@@ -98,14 +109,18 @@ io.on('connection', (socket) => {
             if (activeRooms[roomId].users[socket.id]) {
                 delete activeRooms[roomId].users[socket.id];
                 
-                // Reassign host if the host leaves
+                // Reassign host if the host leaves.
+                // We always pick the OLDEST member (smallest joinedAt) because
+                // they've been in the room the longest and are guaranteed to hold
+                // the session key from their original PKI handshake.
                 if (activeRooms[roomId].host === socket.id) {
                     const remainingUsers = Object.keys(activeRooms[roomId].users);
                     if (remainingUsers.length > 0) {
-                        activeRooms[roomId].host = remainingUsers[0];
-                        console.log(`[leaveRoom] Host left. Reassigned host to ${activeRooms[roomId].host}`);
-                        io.to(activeRooms[roomId].host).emit("you_are_host");
-                        const newHostUser = activeRooms[roomId].users[remainingUsers[0]]?.user;
+                        const newHostId = getOldestMember(roomId);
+                        activeRooms[roomId].host = newHostId;
+                        const newHostUser = activeRooms[roomId].users[newHostId]?.user;
+                        console.log(`[leaveRoom] Host left. Reassigned host to oldest member: '${newHostUser}' (${newHostId})`);
+                        io.to(newHostId).emit("you_are_host");
                         if(newHostUser) io.to(roomId).emit("host_update", newHostUser);
                     } else {
                         console.log(`[leaveRoom] Room ${roomId} is now empty. Deleting room.`);
@@ -134,10 +149,12 @@ io.on('connection', (socket) => {
                 if (activeRooms[roomId].host === socket.id) {
                     const remainingUsers = Object.keys(activeRooms[roomId].users);
                     if (remainingUsers.length > 0) {
-                        activeRooms[roomId].host = remainingUsers[0];
-                        console.log(`[disconnect] Host disconnected. Reassigned host to ${activeRooms[roomId].host}`);
-                        io.to(activeRooms[roomId].host).emit("you_are_host");
-                        const newHostUser = activeRooms[roomId].users[remainingUsers[0]]?.user;
+                        // Same as leaveRoom: pick oldest member so they definitely have the session key
+                        const newHostId = getOldestMember(roomId);
+                        activeRooms[roomId].host = newHostId;
+                        const newHostUser = activeRooms[roomId].users[newHostId]?.user;
+                        console.log(`[disconnect] Host disconnected. Reassigned host to oldest member: '${newHostUser}' (${newHostId})`);
+                        io.to(newHostId).emit("you_are_host");
                         if(newHostUser) io.to(roomId).emit("host_update", newHostUser);
                     } else {
                         console.log(`[disconnect] Room ${roomId} is now empty due to disconnect. Deleting room.`);

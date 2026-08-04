@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { joinVisFunc, popupData, popupVisFunc, registerVisFunc} from '../../features/visibilitySlice'
 import { useSocket } from '../../hooks/useSocket.js';
 import { setJoinCodeURL } from '../../features/locationSlice.js';
+import { generateAESGroupSessionKey } from '../../utils/asymmetricCrypto.js';
+import { setSessionKey } from '../../utils/crypto.js';
 
 function GroupSetup() {
 
@@ -44,15 +46,22 @@ function GroupSetup() {
 
     const createGroupBtn = () => {
         if(isGuest){
-            showPopup("it will create new group", "blue")
+            showPopup("Guests cannot create groups. Please sign in.", "red")
+            return; // Don't fall through to group creation
         }
         if(!user){
             // go on sign in page
             dispatch(registerVisFunc())
+            return;
         }
         else {
             let code = generateStringWithSH()
             const url =  `${window.location.origin}/jxcd/${code}`
+
+            const newSessionKey = generateAESGroupSessionKey();
+            setSessionKey(newSessionKey);
+            console.log("[GroupSetup] AES session key generated and stored at group creation.");
+
             joinRoom(code, user)
             dispatch(setJoinCodeURL({
                 joinCode: code,

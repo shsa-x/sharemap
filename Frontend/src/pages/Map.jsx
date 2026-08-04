@@ -337,7 +337,13 @@ function Map() {
           isActive: false,
         };
         console.error('Error on location sharing:', error);
-        socketRef.current.emit('send_location', locationData);
+        // Must encrypt and use same {locationData, roomId} structure as success callback,
+        // otherwise receiving clients will crash trying to decrypt a plain object.
+        const payload = {
+          locationData: encryptData(locationData),
+          roomId: joinCode,
+        };
+        socketRef.current.emit('send_location', payload);
       };
 
       const intervalId = setInterval(() => {
