@@ -36,7 +36,7 @@ function getBearing(lat1, lon1, lat2, lon2) {
 }
 
 function Map() {
-  const [map, setMap] = useState("satelite");
+  const [map, setMap] = useState("openstreet");
   const [mapLayer, setMapLayer] = useState("https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg");
   const [popupShown, setPopupShown] = useState(true);
   const [joinFlag, setJoinFlag] = useState(true);
@@ -402,13 +402,13 @@ function Map() {
               style={{ scrollbarWidth: 'none' }}
             >
               {messages.map((msgObj) => (
-                <div key={msgObj.id} className="flex items-start gap-2.5 bg-black/40 backdrop-blur-lg rounded-2xl px-3.5 py-2 text-white animate-fadeIn border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.2)] transition-all duration-300 w-fit max-w-[280px] sm:max-w-[320px] hover:bg-black/50">
-                  <div className="w-6 h-6 mt-[1px] rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold flex-shrink-0 text-xs shadow-inner ring-1 ring-white/30">
+                <div key={msgObj.id} className="flex items-start gap-2.5 bg-white/90 backdrop-blur-lg rounded-2xl px-3.5 py-2 text-gray-900 animate-fadeIn border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 w-fit max-w-[280px] sm:max-w-[320px] hover:bg-white">
+                  <div className="w-6 h-6 mt-[1px] rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold flex-shrink-0 text-white text-xs shadow-inner">
                     {msgObj.senderName.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0 leading-snug text-[13.5px]">
-                    <span className="font-bold text-blue-200 mr-1.5 drop-shadow-sm">{msgObj.senderName}</span>
-                    <span className="break-words text-gray-50 font-medium drop-shadow-sm">{msgObj.message}</span>
+                    <span className="font-bold text-gray-800 mr-1.5">{msgObj.senderName}</span>
+                    <span className="break-words text-gray-600 font-medium">{msgObj.message}</span>
                   </div>
                 </div>
               ))}

@@ -51,7 +51,6 @@ function App() {
   return (
 
     <Router>
-      <BackgroundBubbles />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/jxcd/:joinCode" element={<Guest />} />

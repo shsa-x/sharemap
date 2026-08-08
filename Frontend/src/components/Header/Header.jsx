@@ -101,9 +101,9 @@ function Header() {
               </svg>
             </a>
             
-            {!user ? (
+            {/* Auth section commented out as requested by user to only show github icon */}
+            {/* {!user ? (
               <>
-                {/* Login Button */}
                 <button
                   onClick={handleAuthClick}
                   className="px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold text-white hover:text-blue-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded-lg"
@@ -112,7 +112,6 @@ function Header() {
                   log in
                 </button>
 
-                {/* Get Started Button */}
                 <button
                   onClick={handleGetStarted}
                   className="px-4 sm:px-6 py-2 text-sm sm:text-base font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-blue-600"
@@ -123,7 +122,6 @@ function Header() {
               </>
             ) : (
               <div className="relative">
-                {/* User Button */}
                 <button
                   onClick={handleAuthClick}
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold text-white bg-blue-500 hover:bg-blue-400 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600"
@@ -148,7 +146,6 @@ function Header() {
                   </svg>
                 </button>
 
-                {/* Dropdown Menu */}
                 {showUserMenu && (
                   <>
                     <div
@@ -185,7 +182,7 @@ function Header() {
                   </>
                 )}
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>

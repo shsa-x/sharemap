@@ -95,17 +95,17 @@ function Login() {
   if (loginVisibility !== 'visible') return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-500/50 backdrop-blur-sm animate-fadeIn">
       <div 
         className="absolute inset-0" 
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl transform transition-all animate-slideUp">
+      <div className="relative w-full max-w-[400px] bg-white rounded-[1rem] shadow-xl transform transition-all animate-slideUp overflow-hidden">
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none"
           aria-label="Close"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,31 +113,17 @@ function Login() {
           </svg>
         </button>
 
-        <div className="pt-8 pb-6 px-8 text-center border-b border-gray-100">
-          <div className="flex justify-center mb-3">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <img 
-                className="w-10 h-10" 
-                src="https://res.cloudinary.com/dfl8h4on4/image/upload/v1727085429/share_akcqet.png" 
-                alt="ShareMap Logo" 
-              />
-            </div>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">Welcome Back!</h2>
+        <div className="pt-8 pb-5 px-6 text-center border-b border-gray-100">
+          <h2 className="text-2xl font-bold text-[#111827]">Welcome Back</h2>
           <p className="text-sm text-gray-500 mt-1">Sign in to continue sharing</p>
         </div>
 
-        <div className="p-8 space-y-5">
+        <div className="p-6 space-y-4">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-1.5">
               Username
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
               <input
                 id="username"
                 type="text"
@@ -145,22 +131,17 @@ function Login() {
                 onChange={(e) => setUserName(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Enter your username"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none text-sm placeholder:text-gray-400"
                 disabled={isLoading}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1.5">
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -168,7 +149,7 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Enter your password"
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none"
+                className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none text-sm placeholder:text-gray-400"
                 disabled={isLoading}
               />
               <button
@@ -194,7 +175,7 @@ function Login() {
           <button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-200 hover:scale-[1.02]"
+            className="w-full mt-2 py-2.5 px-4 bg-[#111827] text-white font-medium rounded-lg hover:bg-black focus:outline-none focus:ring-2 focus:ring-[#111827] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -202,20 +183,20 @@ function Login() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Signing in...
+                Logging in...
               </span>
             ) : (
-              'Sign In'
+              'Log In'
             )}
           </button>
         </div>
 
-        <div className="px-8 pb-8 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="px-6 pb-6 text-center">
+          <p className="text-sm font-semibold text-gray-700">
             Don't have an account?{' '}
             <button
               onClick={handleRegisterClick}
-              className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              className="text-blue-600 font-bold hover:underline transition-colors duration-200 focus:outline-none"
               disabled={isLoading}
             >
               Sign up

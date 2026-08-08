@@ -13,6 +13,8 @@ let socketInstance = null;
 let staticSocketRef = { current: null };
 let myKeysInstance = null;
 let listenersAttached = false;
+let currentRoomId = null;
+let currentUser = null;
 
 export function useSocket() {
   const dispatch = useDispatch();
@@ -28,6 +30,14 @@ export function useSocket() {
 
     socketInstance.on('connect', () => {
       // console.log("A User Connected");
+      if (currentRoomId && currentUser && myKeysInstance) {
+        console.log("Reconnecting and rejoining room:", currentRoomId);
+        socketInstance.emit("joinRoom", {
+          roomId: currentRoomId, 
+          user: currentUser,
+          publicKey: myKeysInstance.publicKeyJwk
+        });
+      }
     });
 
     socketInstance.on("receive_location", (encryptedData) => {
@@ -109,6 +119,8 @@ export function useSocket() {
   }, [dispatch]);
 
   const joinRoom = async (roomId, user) => {
+    currentRoomId = roomId;
+    currentUser = user;
     // Generate RSA keys for this session
     if (!myKeysInstance) {
       myKeysInstance = await generateRSAKeyPair();
@@ -122,6 +134,8 @@ export function useSocket() {
   };
 
   const leaveRoom = (roomId, user) => {
+    currentRoomId = null;
+    currentUser = null;
     socketInstance.emit("leaveRoom", {
       roomId, 
       user
