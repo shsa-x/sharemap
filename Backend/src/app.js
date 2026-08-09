@@ -30,6 +30,10 @@ app.get("/", (req, res) => {
     res.send("All is well!")
 })
 
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "OK", message: "Server is awake" });
+})
+
 
 app.post("/find-path", findPath)
 

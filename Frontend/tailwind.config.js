@@ -7,6 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        white: "#F4F6F9",
         ink: "#111827",
         canvas: "#F4F6F9",
         ethan: "#F97316", 

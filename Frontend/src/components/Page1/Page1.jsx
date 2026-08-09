@@ -352,11 +352,11 @@ function Page1() {
 
         {/* Right Side: The Map */}
         <div className="relative lg:w-[110%] lg:-ml-4 z-10">
-          <div className="relative aspect-square sm:aspect-[5/4] lg:aspect-[4/3] w-full overflow-hidden rounded-[40px]">
+          <div className="relative aspect-video sm:aspect-[5/4] lg:aspect-[4/3] w-full overflow-hidden rounded-2xl md:rounded-[40px] md:scale-0 sl">
             <img 
-                src="https://res.cloudinary.com/dfl8h4on4/image/upload/v1786164968/Gemini_Generated_Image_auoie4auoie4auoi_babd6s.png"
+                src="https://res.cloudinary.com/dfl8h4on4/image/upload/v1786171792/ChatGPT_Image_Aug_8_2026_12_19_16_PM_qdat5a.png"
                 alt="ShareMap Map Preview"
-                className="w-full h-full object-cover scale-110"
+                className="w-full h-full object-cover scale-100 md:scale-110"
             />
           </div>
         </div>
@@ -519,8 +519,10 @@ function Page1() {
               ShareMap
             </div>
             <ul className="mt-4 space-y-2 text-base text-ink/70">
-              <li className="flex items-center gap-2">
-                <GithubIcon className="size-4" aria-hidden="true" /> Open source
+              <li>
+                <a href="https://github.com/shivamsahu-tech/sharemap" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-accent-blue transition-colors">
+                  <GithubIcon className="size-4" aria-hidden="true" /> Open source
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <Lock className="size-4" aria-hidden="true" /> E2E encrypted

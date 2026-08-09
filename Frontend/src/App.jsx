@@ -15,6 +15,9 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        // Ping health endpoint to wake up server
+        fetch(`${SERVER_URL}/health`).catch(e => console.error("Health ping failed", e));
+
         const response = await fetch(`${SERVER_URL}/users/current-user`, {
           method: "GET",
           headers: { 'Content-Type': 'application/json' },
