@@ -78,11 +78,12 @@ export const locationSlice = createSlice({
             state.group[name] = action.payload
         },
         setMessage: (state, action) => {
-            const { name, message, id } = action.payload;
+            const { name, message, id, avatar } = action.payload;
             state.messages.push({
                 id: id,
                 senderName: name,
-                message: message
+                message: message,
+                avatar: avatar
             });
         },
         removeMessage: (state, action) => {

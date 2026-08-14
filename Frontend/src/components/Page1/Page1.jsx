@@ -259,16 +259,9 @@ function Page1() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base font-semibold text-canvas bg-accent-blue hover:opacity-90 rounded-xl shadow-sm transition-all duration-200"
+                className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-canvas bg-ink hover:opacity-90 rounded-xl shadow-sm transition-transform hover:scale-[1.03]"
               >
-                <div className="w-6 h-6 bg-white text-accent-blue rounded-full flex items-center justify-center font-bold text-xs overflow-hidden">
-                  {avatar ? (
-                    <img src={avatar} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    user.charAt(0).toUpperCase()
-                  )}
-                </div>
-                <span className="hidden sm:inline max-w-[120px] truncate">{user}</span>
+                <span className="max-w-[120px] truncate">{user}</span>
               </button>
 
               {showUserMenu && (
@@ -351,12 +344,12 @@ function Page1() {
         </div>
 
         {/* Right Side: The Map */}
-        <div className="relative lg:w-[110%] lg:-ml-4 z-10">
-          <div className="relative aspect-video sm:aspect-[5/4] lg:aspect-[4/3] w-full overflow-hidden rounded-2xl md:rounded-[40px] md:scale-0 sl">
+        <div className="relative lg:w-[120%] lg:-ml-4 z-10">
+          <div className="relative w-full overflow-hidden rounded-2xl ">
             <img 
-                src="https://res.cloudinary.com/dfl8h4on4/image/upload/v1786171792/ChatGPT_Image_Aug_8_2026_12_19_16_PM_qdat5a.png"
+                src="https://res.cloudinary.com/dfl8h4on4/image/upload/v1786640935/Screenshot_from_2026-08-13_22-38-32_uecc8g.png"
                 alt="ShareMap Map Preview"
-                className="w-full h-full object-cover scale-100 md:scale-110"
+                className="w-full h-full"
             />
           </div>
         </div>

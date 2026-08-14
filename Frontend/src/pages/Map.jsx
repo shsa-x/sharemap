@@ -37,7 +37,7 @@ function getBearing(lat1, lon1, lat2, lon2) {
 
 function Map() {
   const [map, setMap] = useState("openstreet");
-  const [mapLayer, setMapLayer] = useState("https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg");
+  const [mapLayer, setMapLayer] = useState("https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png");
   const [popupShown, setPopupShown] = useState(true);
   const [joinFlag, setJoinFlag] = useState(true);
   const [msg, setMsg] = useState("");
@@ -67,6 +67,7 @@ function Map() {
   const isWaiting = useSelector(state => state.locations.isWaiting);
   const hostName = useSelector(state => state.locations.hostName);
   const messages = useSelector(state => state.locations.messages);
+  const avatar = useSelector(state => state.locations.avatar);
   
   const { socketRef, joinRoom, leaveRoom, approveUser } = useSocket();
 
@@ -104,7 +105,8 @@ function Map() {
     const obj = {
       name: user,
       message: msg,
-      id: msgId
+      id: msgId,
+      avatar: avatar
     };
 
     socketRef.current.emit("send_message", {
@@ -402,9 +404,13 @@ function Map() {
               style={{ scrollbarWidth: 'none' }}
             >
               {messages.map((msgObj) => (
-                <div key={msgObj.id} className="flex items-start gap-2.5 bg-white/90 backdrop-blur-lg rounded-2xl px-3.5 py-2 text-gray-900 animate-fadeIn border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 w-fit max-w-[280px] sm:max-w-[320px] hover:bg-white">
-                  <div className="w-6 h-6 mt-[1px] rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold flex-shrink-0 text-white text-xs shadow-inner">
-                    {msgObj.senderName.charAt(0).toUpperCase()}
+                <div key={msgObj.id} className="flex items-center gap-2.5 bg-white/90 backdrop-blur-lg rounded-2xl px-3.5 py-2 text-gray-900 animate-fadeIn border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 w-fit max-w-[280px] sm:max-w-[320px] hover:bg-white">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold flex-shrink-0 text-white text-xs shadow-inner overflow-hidden">
+                    {msgObj.avatar ? (
+                      <img src={msgObj.avatar} alt={msgObj.senderName} className="w-full h-full object-cover" />
+                    ) : (
+                      msgObj.senderName.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div className="flex-1 min-w-0 leading-snug text-[13.5px]">
                     <span className="font-bold text-gray-800 mr-1.5">{msgObj.senderName}</span>
