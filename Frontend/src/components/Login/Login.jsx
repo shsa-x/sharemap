@@ -16,7 +16,7 @@ function Login() {
   
   const isGuest = useSelector(state => state.visibility.isGuest);
   const loginVisibility = useSelector(state => state.visibility.loginVisibility);
-  const joinCode = useSelector(state => state.locations.joinCode);
+  const groupId = useSelector(state => state.locations.groupId);
   const user = useSelector(state => state.locations.user);
   
   const { leaveRoom } = useSocket();
@@ -65,7 +65,7 @@ function Login() {
       const data = await response.json();
 
       if (data.success) {
-        if (isGuest) dispatch(joinVisFunc());
+        if (groupId) dispatch(joinVisFunc());
         showPopup("Welcome back! 🎉", "green");
         dispatch(setMyName(data.data.user.name));
         dispatch(setAvatar(data.data.user.avatar || ""));

@@ -10,29 +10,29 @@ import { SERVER_URL } from '../config.js';
 
 function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
   const R = 6371e3; // Radius of the earth in m
-  const dLat = (lat2-lat1) * (Math.PI/180);
-  const dLon = (lon2-lon1) * (Math.PI/180); 
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2); 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  return R * c; 
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 function getBearing(lat1, lon1, lat2, lon2) {
-    const toRad = (deg) => deg * Math.PI / 180;
-    const toDeg = (rad) => rad * 180 / Math.PI;
+  const toRad = (deg) => deg * Math.PI / 180;
+  const toDeg = (rad) => rad * 180 / Math.PI;
 
-    const φ1 = toRad(lat1);
-    const φ2 = toRad(lat2);
-    const Δλ = toRad(lon2 - lon1);
+  const φ1 = toRad(lat1);
+  const φ2 = toRad(lat2);
+  const Δλ = toRad(lon2 - lon1);
 
-    const y = Math.sin(Δλ) * Math.cos(φ2);
-    const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-    const θ = Math.atan2(y, x);
-    
-    return (toDeg(θ) + 360) % 360;
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  const θ = Math.atan2(y, x);
+
+  return (toDeg(θ) + 360) % 360;
 }
 
 function Map() {
@@ -48,18 +48,18 @@ function Map() {
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const [path, setPath] = useState([]);
   const [isHidePathVisible, setIsHidePathVisible] = useState(false)
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const mapRef = useRef();
   const lastPosRef = useRef(null);
-  
+
   const chatContainerRef = useRef(null);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
-  
+
   const user = useSelector(state => state.locations.user);
-  const joinURL = useSelector(state => state.locations.joinURL);
-  const joinCode = useSelector(state => state.locations.joinCode);
+  const groupURL = useSelector(state => state.locations.groupURL);
+  const groupId = useSelector(state => state.locations.groupId);
   const locationObj = useSelector(state => state.locations.group)[user];
   const allMembers = useSelector(state => state.locations.group);
   const waitlist = useSelector(state => state.locations.waitlist);
@@ -68,11 +68,11 @@ function Map() {
   const hostName = useSelector(state => state.locations.hostName);
   const messages = useSelector(state => state.locations.messages);
   const avatar = useSelector(state => state.locations.avatar);
-  
+
   const { socketRef, joinRoom, leaveRoom, approveUser } = useSocket();
 
 
-  const hidePath  = () => {
+  const hidePath = () => {
     setPath([]);
     setIsHidePathVisible(false);
   }
@@ -80,7 +80,7 @@ function Map() {
   const changeLayer = (value) => {
     setMap(value);
     setMapLayer(
-      value === "satelite" 
+      value === "satelite"
         ? "https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg"
         : "https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png"
     );
@@ -100,7 +100,7 @@ function Map() {
 
   const sendMsg = () => {
     if (!msg.trim()) return;
-    
+
     const msgId = Date.now() + Math.random();
     const obj = {
       name: user,
@@ -110,12 +110,12 @@ function Map() {
     };
 
     socketRef.current.emit("send_message", {
-      roomId: joinCode,
+      roomId: groupId,
       data: encryptData(obj),
     });
     // Add own message locally
     dispatch(setMessage(obj));
-    
+
     // Auto-remove after 10 seconds
     setTimeout(() => {
       dispatch(removeMessage(msgId));
@@ -132,20 +132,20 @@ function Map() {
   };
 
   const leaveRoomBtn = () => {
-    leaveRoom(joinCode, user);
+    leaveRoom(groupId, user);
     dispatch(resetGroup());
     dispatch(setIsMapActive(false));
   };
 
   const copyCodeBtn = () => {
     showPopup("Copied To Clipboard", "green");
-    navigator.clipboard.writeText(joinCode);
+    navigator.clipboard.writeText(groupId);
     setMenuOpen(false);
   };
 
   const copyURLBtn = () => {
     showPopup("Copied To Clipboard", "green");
-    navigator.clipboard.writeText(joinURL);
+    navigator.clipboard.writeText(groupURL);
     setMenuOpen(false);
   };
 
@@ -189,22 +189,22 @@ function Map() {
     showPopup(`Finding path to ${targetMember.name}...`, "blue");
 
     const payload = {
-        source: {
-            lat: allMembers[user].lat,
-            lng: allMembers[user].long
-        },
-        destination: {
-            lat: targetMember.lat,
-            lng: targetMember.long
-        }
+      source: {
+        lat: allMembers[user].lat,
+        lng: allMembers[user].long
+      },
+      destination: {
+        lat: targetMember.lat,
+        lng: targetMember.long
+      }
     }
 
     console.log(payload)
     const response = await fetch(`${SERVER_URL}/find-path`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
     // console.log("find path data")
     // console.log(allMembers[user])
@@ -213,13 +213,13 @@ function Map() {
 
     const result = await response.json()
     const coordinates = [
-      { lat: allMembers[user].lat, lng: allMembers[user].long }, 
-      ...result.data, 
+      { lat: allMembers[user].lat, lng: allMembers[user].long },
+      ...result.data,
       { lat: targetMember.lat, lng: targetMember.long }
     ];
 
     console.log("result from find path : ", coordinates)
-    
+
     setPath([...coordinates]);
     setIsHidePathVisible(true);
     setShowPathFinder(false);
@@ -228,7 +228,7 @@ function Map() {
 
   useEffect(() => {
     const alertUser = () => {
-      leaveRoom(joinCode, user);
+      leaveRoom(groupId, user);
       dispatch(resetGroup());
     };
 
@@ -240,21 +240,21 @@ function Map() {
     window.addEventListener("beforeunload", alertUser);
     window.addEventListener("resize", handleResize);
     window.addEventListener("orientationchange", handleResize);
-    
+
     return () => {
       window.removeEventListener("beforeunload", alertUser);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleResize);
     };
-  }, [joinCode, user]);
+  }, [groupId, user]);
 
   useEffect(() => {
     localStorage.setItem("lastVisitedPage", "map");
-    if (joinCode && joinFlag) {
-      joinRoom(joinCode, user);
+    if (groupId && joinFlag) {
+      joinRoom(groupId, user);
       setJoinFlag(false);
     }
-  }, [joinCode, joinRoom]);
+  }, [groupId, joinRoom]);
 
   useEffect(() => {
     const handleUserJoin = (userName) => {
@@ -297,12 +297,12 @@ function Map() {
         let calculatedHeading = 0;
 
         if (lastPosRef.current) {
-            const timeDiff = (currentTime - lastPosRef.current.time) / 1000;
-            if (timeDiff > 0) {
-                const dist = getDistanceFromLatLonInM(lastPosRef.current.lat, lastPosRef.current.long, currentLat, currentLong);
-                calculatedSpeed = dist / timeDiff;
-                calculatedHeading = getBearing(lastPosRef.current.lat, lastPosRef.current.long, currentLat, currentLong);
-            }
+          const timeDiff = (currentTime - lastPosRef.current.time) / 1000;
+          if (timeDiff > 0) {
+            const dist = getDistanceFromLatLonInM(lastPosRef.current.lat, lastPosRef.current.long, currentLat, currentLong);
+            calculatedSpeed = dist / timeDiff;
+            calculatedHeading = getBearing(lastPosRef.current.lat, lastPosRef.current.long, currentLat, currentLong);
+          }
         }
 
         lastPosRef.current = { lat: currentLat, long: currentLong, time: currentTime };
@@ -325,7 +325,7 @@ function Map() {
 
         const payload = {
           locationData: encryptData(locationData),
-          roomId: joinCode,
+          roomId: groupId,
         };
 
         socketRef.current.emit('send_location', payload);
@@ -343,7 +343,7 @@ function Map() {
         // otherwise receiving clients will crash trying to decrypt a plain object.
         const payload = {
           locationData: encryptData(locationData),
-          roomId: joinCode,
+          roomId: groupId,
         };
         socketRef.current.emit('send_location', payload);
       };
@@ -360,7 +360,7 @@ function Map() {
     } else {
       showPopup("Login First", "red");
     }
-  }, [dispatch, user, socketRef, joinCode]);
+  }, [dispatch, user, socketRef, groupId]);
 
   useEffect(() => {
     // Auto scroll to bottom when a new message arrives, if we are already near the bottom
@@ -394,10 +394,10 @@ function Map() {
       <div className='flex flex-col overflow-hidden' style={{ height: `${viewportHeight}px` }}>
 
         <div className='flex-1 relative overflow-hidden'>
-          
+
           {/* YouTube-Style Chat Overlay */}
           <div className="absolute top-24 left-4 z-[1000] flex flex-col gap-2 max-w-xs sm:max-w-sm pointer-events-none">
-            <div 
+            <div
               ref={chatContainerRef}
               onScroll={handleChatScroll}
               className="flex flex-col gap-2 max-h-64 overflow-y-auto pointer-events-auto"
@@ -419,9 +419,9 @@ function Map() {
                 </div>
               ))}
             </div>
-            
+
             {showScrollBottom && (
-              <button 
+              <button
                 onClick={scrollToBottom}
                 className="self-center mt-2 p-2 bg-white/90 text-blue-600 rounded-full shadow-lg pointer-events-auto hover:bg-white transition-colors"
               >
@@ -431,7 +431,7 @@ function Map() {
               </button>
             )}
           </div>
-          
+
           {/* My Location Button */}
           <div
             className='absolute top-4 right-4 z-[1000] p-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg shadow-md hover:cursor-pointer'
@@ -461,9 +461,8 @@ function Map() {
                 </div>
                 <button
                   onClick={() => changeLayer("satelite")}
-                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                    map === "satelite" ? "bg-blue-50 text-blue-600" : "text-gray-700"
-                  }`}
+                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${map === "satelite" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                    }`}
                 >
                   <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -473,9 +472,8 @@ function Map() {
                 </button>
                 <button
                   onClick={() => changeLayer("openstreet")}
-                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                    map === "openstreet" ? "bg-blue-50 text-blue-600" : "text-gray-700"
-                  }`}
+                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${map === "openstreet" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                    }`}
                 >
                   <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -497,10 +495,10 @@ function Map() {
                     </svg>
                     View Members ({Object.keys(allMembers).length})
                   </span>
-                  <svg 
-                    className={`w-4 h-4 transition-transform ${showMembers ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    stroke="currentColor" 
+                  <svg
+                    className={`w-4 h-4 transition-transform ${showMembers ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -543,10 +541,10 @@ function Map() {
                     </svg>
                     Find Shortest Path
                   </span>
-                  <svg 
-                    className={`w-4 h-4 transition-transform ${showPathFinder ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    stroke="currentColor" 
+                  <svg
+                    className={`w-4 h-4 transition-transform ${showPathFinder ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -629,7 +627,7 @@ function Map() {
           {/* Reimagined Message Input - Bottom Center */}
           <div className='absolute bottom-8 left-1/2 transform -translate-x-1/2 z-[1000] w-full max-w-lg px-4'>
             <div className='bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full p-1.5 flex items-center gap-2 transition-all duration-300 focus-within:shadow-[0_8px_30px_rgba(59,130,246,0.2)] focus-within:bg-white/95'>
-              <input 
+              <input
                 type="text"
                 className='flex-1 bg-transparent px-5 py-3 outline-none text-gray-800 font-medium placeholder-gray-500/80 text-sm md:text-base'
                 spellCheck="false"

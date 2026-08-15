@@ -5,8 +5,8 @@ const initialState = {
     isGuest: false,
     accessToken: "",
     refreshToken: "",
-    joinCode: "",
-    joinURL : "",
+    groupId: "",
+    groupURL : "",
     group:{
     },
     messages: [],
@@ -15,7 +15,8 @@ const initialState = {
     isHost: false,
     hostName: "",
     avatar: "",
-    isMapActive: false
+    isMapActive: false,
+    isSessionChecking: true
 };
 
 export const locationSlice = createSlice({
@@ -24,8 +25,8 @@ export const locationSlice = createSlice({
     reducers: {
         resetGroup: (state, action) => {
             state.group = {}
-            state.joinCode = ""
-            state.joinURL  = ""
+            state.groupId = ""
+            state.groupURL  = ""
             state.waitlist = []
             state.isWaiting = false
             state.isHost = false
@@ -53,10 +54,9 @@ export const locationSlice = createSlice({
             // const keys = Object.keys(state.group)
             // console.log(keys);
         },
-        setJoinCodeURL : (state, action) => {
-            state.joinCode = action.payload.joinCode
-            state.joinURL = action.payload.joinURL
-            // console.log("joincode : ", state.joinCode, "joinURL : ", state.joinURL)
+        setGroupIdURL : (state, action) => {
+            state.groupId = action.payload.groupId
+            state.groupURL = action.payload.groupURL
         },
         setMyName : (state, action) => {
             state.user = action.payload
@@ -109,10 +109,13 @@ export const locationSlice = createSlice({
         },
         setIsMapActive: (state, action) => {
             state.isMapActive = action.payload;
+        },
+        setIsSessionChecking: (state, action) => {
+            state.isSessionChecking = action.payload;
         }
         
     }
 });
 
-export const { setMyLoc , setMyName, setAccessAndRefreshToken, updateGroup, setJoinCodeURL, resetGroup,setMessage,removeMessage,setGuest, removeUser, setWaitlist, setIsWaiting, setIsHost, setHostName, setAvatar, setIsMapActive } = locationSlice.actions;
+export const { setMyLoc , setMyName, setAccessAndRefreshToken, updateGroup, setGroupIdURL, resetGroup,setMessage,removeMessage,setGuest, removeUser, setWaitlist, setIsWaiting, setIsHost, setHostName, setAvatar, setIsMapActive, setIsSessionChecking } = locationSlice.actions;
 export default locationSlice.reducer;

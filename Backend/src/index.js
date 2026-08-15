@@ -50,17 +50,24 @@ function getOldestMember(roomId) {
 io.on('connection', (socket) => {
     // console.log("A user connected");
 
-    socket.on("joinRoom", ({roomId, user, publicKey}) => {
-        console.log(`[joinRoom] User '${user}' (socket: ${socket.id}) attempting to join room: ${roomId}`);
-        socket.join(roomId);
+    socket.on("joinRoom", ({roomId, user, publicKey, isCreating}) => {
+        console.log(`[joinRoom] User '${user}' (socket: ${socket.id}) attempting to join room: ${roomId}, isCreating: ${isCreating}`);
         
         if (!activeRooms[roomId]) {
-            console.log(`[joinRoom] Room ${roomId} does not exist. Creating new room with host ${socket.id}`);
-            activeRooms[roomId] = { 
-                host: socket.id, 
-                users: {}
-            };
+            if (isCreating) {
+                console.log(`[joinRoom] Room ${roomId} does not exist. Creating new room with host ${socket.id}`);
+                activeRooms[roomId] = { 
+                    host: socket.id, 
+                    users: {}
+                };
+            } else {
+                console.log(`[joinRoom] Room ${roomId} does not exist and isCreating is false. Rejecting.`);
+                socket.emit("room_not_found");
+                return;
+            }
         }
+        
+        socket.join(roomId);
         
         if (activeRooms[roomId].host === socket.id) {
             console.log(`[joinRoom] User '${user}' is the host of room ${roomId}`);

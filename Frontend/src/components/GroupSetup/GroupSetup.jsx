@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { joinVisFunc, popupData, popupVisFunc, registerVisFunc} from '../../features/visibilitySlice'
 import { useSocket } from '../../hooks/useSocket.js';
-import { setJoinCodeURL } from '../../features/locationSlice.js';
+import { setGroupIdURL } from '../../features/locationSlice.js';
 import { generateAESGroupSessionKey } from '../../utils/asymmetricCrypto.js';
 import { setSessionKey } from '../../utils/crypto.js';
 
@@ -13,21 +13,15 @@ function GroupSetup() {
 
     const user = useSelector(state => state.locations.user)
 
-    const [joinCode, setJoinCode] = useState("")
+    const [groupId, setGroupId] = useState("")
 
-    function generateStringWithSH() {
-        const chars = '0123456789';
-        const shPosition = Math.floor(Math.random() * 9); // Position to insert "sh"
-        
-        let randomString = '';
-        for (let i = 0; i < 6; i++) {
-            randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+    function generateGroupId() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 10; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-    
-        // Insert "sh" at a random position in the 10-character string
-        const finalString = randomString.slice(0, shPosition) + '25' + randomString.slice(shPosition);
-        
-        return finalString;
+        return result;
     }
     
     
@@ -55,17 +49,17 @@ function GroupSetup() {
             return;
         }
         else {
-            let code = generateStringWithSH()
+            let code = generateGroupId()
             const url =  `${window.location.origin}/jxcd/${code}`
 
             const newSessionKey = generateAESGroupSessionKey();
             setSessionKey(newSessionKey);
             console.log("[GroupSetup] AES session key generated and stored at group creation.");
 
-            joinRoom(code, user)
-            dispatch(setJoinCodeURL({
-                joinCode: code,
-                joinURL: url
+            joinRoom(code, user, true);
+            dispatch(setGroupIdURL({
+                groupId: code,
+                groupURL: url
             }))
             dispatch(joinVisFunc())
         }
@@ -77,13 +71,13 @@ function GroupSetup() {
             dispatch(registerVisFunc())
         } 
         else {
-            if(!(joinCode.includes("25") && joinCode.length == 8 )){
-                showPopup("Invalid Join Code!", "red")
+            if(groupId.length < 10){
+                showPopup("Invalid Group ID!", "red")
                 return
             }
-            dispatch(setJoinCodeURL({
-                joinCode: joinCode,
-                joinURL: `${window.location.origin}/jxcd/${joinCode}`
+            dispatch(setGroupIdURL({
+                groupId: groupId,
+                groupURL: `${window.location.origin}/jxcd/${groupId}`
             }))
             dispatch(joinVisFunc())
         }
@@ -106,7 +100,7 @@ function GroupSetup() {
             className=' mt-12 text-justify' 
             >
                 <strong>Start Your Journey Together! </strong><br />
-               First step to sharing your adventures and staying connected with friends and family.  Simply tap on the “Create Group” button to instantly generate a unique join code and URL. This code and URL are your keys to inviting others.</p>
+               First step to sharing your adventures and staying connected with friends and family.  Simply tap on the “Create Group” button to instantly generate a unique Group ID and URL. This ID and URL are your keys to inviting others.</p>
             <p className='mt-10'>
                 Share these with your friends and family so they can join your group and start adventuring on the same map. </p>
 
@@ -124,9 +118,9 @@ function GroupSetup() {
                 <input 
                 className='-ml-3 p-1.5 px-2 border-l-2 border-t-2 border-b-2 border-black focus:outline-none rounded-s-md '
                 type="text" 
-                placeholder='Enter join code here'
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value)}
+                placeholder='Enter Group ID here'
+                value={groupId}
+                onChange={(e) => setGroupId(e.target.value)}
                 />
 
                 <button 
@@ -138,7 +132,7 @@ function GroupSetup() {
             className=' mt-10 text-justify' 
             >
                 <strong>Join the Adventure!</strong> <br />
-                Joining a group on ShareMap is easy and seamless. Simply paste your join code into the provided field, and a card will be generated containing both the URL and the join code. This card is your gateway to inviting others.
+                Joining a group on ShareMap is easy and seamless. Simply paste your Group ID into the provided field, and a card will be generated containing both the URL and the Group ID. This card is your gateway to inviting others.
             </p>
 
             <p 

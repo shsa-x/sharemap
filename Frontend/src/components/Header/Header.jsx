@@ -14,7 +14,9 @@ function Header() {
   const [isLoading, setLoading] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   
-  const joinCode = useSelector(state => state.locations.joinCode);
+  const activeGroupId = useSelector(state => state.locations.groupId);
+  const isHost = useSelector(state => state.locations.isHost);
+  const hostName = useSelector(state => state.locations.hostName);
   const accessToken = useSelector(state => state.locations.accessToken);
   const user = useSelector(state => state.locations.user);
   const avatar = useSelector(state => state.locations.avatar);
@@ -26,6 +28,20 @@ function Header() {
       dispatch(popupVisFunc());
     }, 3000);
   };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(activeGroupId)
+      .then(() => {
+        showPopup('Code Copied !', 'green')
+      })
+      .catch(err => {
+        console.error('Failed to copy code: ', err);
+      });
+  };
+
+  const shareHandler = async () => {
+    dispatch(joinVisFunc())
+  }
 
   const handleLogout = async () => {
     setLoading(true);
@@ -42,7 +58,7 @@ function Header() {
       const data = await response.json();
 
       if (data.success) {
-        leaveRoom(joinCode, user);
+        leaveRoom(activeGroupId, user);
         navigate("/");
         showPopup(data.message, "green");
         dispatch(setMyName(""));
@@ -80,7 +96,7 @@ function Header() {
           {/* Logo */}
           <button
             onClick={handleLogoClick}
-            className="text-2xl sm:text-3xl font-bold text-white hover:text-blue-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded-lg px-2"
+            className="flex items-center gap-2 text-2xl sm:text-3xl font-bold text-white hover:text-blue-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded-lg px-2"
             aria-label="ShareMap Home"
           >
             ShareMap

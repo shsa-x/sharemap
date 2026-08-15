@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { joinVisFunc, popupData, popupVisFunc, registerVisFunc, loginVisFunc } from "../../features/visibilitySlice";
 import { useSocket } from "../../hooks/useSocket.js";
-import { setJoinCodeURL, setMyName, setAccessAndRefreshToken } from "../../features/locationSlice.js";
+import { setGroupIdURL, setMyName, setAccessAndRefreshToken } from "../../features/locationSlice.js";
 import { generateAESGroupSessionKey } from "../../utils/asymmetricCrypto.js";
 import { setSessionKey } from "../../utils/crypto.js";
 import { SERVER_URL } from "../../config.js";
@@ -133,24 +133,22 @@ function Page1() {
   const { joinRoom, leaveRoom } = useSocket();
   const user = useSelector((state) => state.locations.user);
   const isGuest = useSelector((state) => state.locations.isGuest);
-  const activeJoinCode = useSelector((state) => state.locations.joinCode);
+  const activeGroupId = useSelector((state) => state.locations.groupId);
   const accessToken = useSelector(state => state.locations.accessToken);
   const avatar = useSelector(state => state.locations.avatar);
+  const isSessionChecking = useSelector((state) => state.locations.isSessionChecking);
   
-  const [joinCodeInput, setJoinCodeInput] = useState("");
+  const [groupIdInput, setGroupIdInput] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
-  function generateStringWithSH() {
-    const chars = "0123456789";
-    const shPosition = Math.floor(Math.random() * 9);
-    let randomString = "";
-    for (let i = 0; i < 6; i++) {
-      randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+  function generateGroupId() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < 10; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    const finalString =
-      randomString.slice(0, shPosition) + "25" + randomString.slice(shPosition);
-    return finalString;
+    return result;
   }
 
   const showPopup = (message, color) => {
@@ -170,14 +168,14 @@ function Page1() {
       dispatch(registerVisFunc());
       return;
     } else {
-      let code = generateStringWithSH();
+      let code = generateGroupId();
       const url = `${window.location.origin}/jxcd/${code}`;
 
       const newSessionKey = generateAESGroupSessionKey();
       setSessionKey(newSessionKey);
 
-      joinRoom(code, user);
-      dispatch(setJoinCodeURL({ joinCode: code, joinURL: url }));
+      joinRoom(code, user, true);
+      dispatch(setGroupIdURL({ groupId: code, groupURL: url }));
       dispatch(joinVisFunc());
     }
   };
@@ -186,14 +184,14 @@ function Page1() {
     if (!user) {
       dispatch(registerVisFunc());
     } else {
-      if (!(joinCodeInput.includes("25") && joinCodeInput.length == 8)) {
-        showPopup("Invalid Join Code!", "red");
+      if (groupIdInput.length < 10) {
+        showPopup("Invalid Group ID!", "red");
         return;
       }
       dispatch(
-        setJoinCodeURL({
-          joinCode: joinCodeInput,
-          joinURL: `${window.location.origin}/jxcd/${joinCodeInput}`,
+        setGroupIdURL({
+          groupId: groupIdInput,
+          groupURL: `${window.location.origin}/jxcd/${groupIdInput}`,
         })
       );
       dispatch(joinVisFunc());
@@ -215,7 +213,7 @@ function Page1() {
       const data = await response.json();
 
       if (data.success) {
-        leaveRoom(activeJoinCode, user);
+        leaveRoom(activeGroupId, user);
         showPopup(data.message, "green");
         dispatch(setMyName(""));
         dispatch(setAccessAndRefreshToken({ accessToken: "", refreshToken: "" }));
@@ -251,9 +249,16 @@ function Page1() {
           {!user ? (
             <button 
               onClick={() => dispatch(loginVisFunc())}
-              className="cursor-pointer rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-canvas transition-transform hover:scale-[1.03]"
+              disabled={isSessionChecking}
+              className={`cursor-pointer rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-canvas transition-transform ${isSessionChecking ? 'opacity-70 flex items-center gap-2 cursor-not-allowed' : 'hover:scale-[1.03]'}`}
             >
-              Login
+              {isSessionChecking && (
+                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              {isSessionChecking ? 'Loading...' : 'Login'}
             </button>
           ) : (
             <div className="relative">
@@ -418,9 +423,16 @@ function Page1() {
             </p>
             <button 
               onClick={createGroupBtn}
-              className="mt-6 cursor-pointer rounded-xl bg-ink px-6 py-3 text-base font-bold text-canvas transition-transform hover:scale-[1.02]"
+              disabled={isSessionChecking}
+              className={`mt-6 cursor-pointer rounded-xl bg-ink px-6 py-3 text-base font-bold text-canvas transition-transform inline-flex items-center gap-2 ${isSessionChecking ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02]'}`}
             >
-              Create group
+              {isSessionChecking && (
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              )}
+              {isSessionChecking ? 'Loading...' : 'Create group'}
             </button>
           </div>
 
@@ -435,10 +447,10 @@ function Page1() {
             <div className="mt-6 flex flex-wrap gap-3">
               <input
                 type="text"
-                placeholder="Group code"
-                aria-label="Group code"
-                value={joinCodeInput}
-                onChange={(e) => setJoinCodeInput(e.target.value)}
+                placeholder="Group ID"
+                aria-label="Group ID"
+                value={groupIdInput}
+                onChange={(e) => setGroupIdInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && joinGroupBtn()}
                 className="min-w-0 flex-1 rounded-xl border-2 border-ink/20 bg-canvas px-4 py-3 text-base font-semibold outline-none placeholder:text-ink/45 focus:border-accent-blue"
               />

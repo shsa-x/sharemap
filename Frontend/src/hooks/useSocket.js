@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import io from 'socket.io-client';
-import { setMessage, removeMessage, updateGroup, setWaitlist, setIsWaiting, setIsHost, setHostName } from '../features/locationSlice.js';
+import { setMessage, removeMessage, updateGroup, setWaitlist, setIsWaiting, setIsHost, setHostName, setIsMapActive } from '../features/locationSlice.js';
 import { decryptData, setSessionKey, getSessionKey } from '../utils/crypto.js';
 import { generateRSAKeyPair, encryptWithPublicKey, decryptWithPrivateKey } from '../utils/asymmetricCrypto.js';
 
@@ -15,6 +15,7 @@ let myKeysInstance = null;
 let listenersAttached = false;
 let currentRoomId = null;
 let currentUser = null;
+let isCurrentUserHost = false;
 
 export function useSocket() {
   const dispatch = useDispatch();
@@ -33,9 +34,10 @@ export function useSocket() {
       if (currentRoomId && currentUser && myKeysInstance) {
         console.log("Reconnecting and rejoining room:", currentRoomId);
         socketInstance.emit("joinRoom", {
-          roomId: currentRoomId, 
+          roomId: currentRoomId,
           user: currentUser,
-          publicKey: myKeysInstance.publicKeyJwk
+          publicKey: myKeysInstance.publicKeyJwk,
+          isCreating: isCurrentUserHost
         });
       }
     });
@@ -71,15 +73,29 @@ export function useSocket() {
       }
     });
 
+    // Room Error Handling
+    socketInstance.on("room_not_found", () => {
+      dispatch(popupData({ message: "Room does not exist!", color: "red" }));
+      dispatch(popupVisFunc());
+      setTimeout(() => {
+        dispatch(popupVisFunc());
+      }, 3000);
+      
+      // Close map and redirect
+      dispatch(setIsMapActive(false));
+      window.history.pushState({}, '', '/');
+    });
+
     // PKI Handshake Events
     socketInstance.on("you_are_host", () => {
-       // NOTE: We only set the isHost flag here.
-       // The AES session key is generated ONCE at group creation time (in GroupSetup.jsx)
-       // and must NOT be regenerated here — this event also fires on host reassignment
-       // (when the original host leaves), and regenerating would break encryption for
-       // all existing members who still hold the original session key.
-       console.log("I am the host!");
-       dispatch(setIsHost(true));
+      // NOTE: We only set the isHost flag here.
+      // The AES session key is generated ONCE at group creation time (in GroupSetup.jsx)
+      // and must NOT be regenerated here — this event also fires on host reassignment
+      // (when the original host leaves), and regenerating would break encryption for
+      // all existing members who still hold the original session key.
+      console.log("I am the host!");
+      isCurrentUserHost = true;
+      dispatch(setIsHost(true));
     });
 
     socketInstance.on("host_update", (hostName) => {
@@ -118,7 +134,7 @@ export function useSocket() {
 
   }, [dispatch]);
 
-  const joinRoom = async (roomId, user) => {
+  const joinRoom = async (roomId, user, isCreating = false) => {
     currentRoomId = roomId;
     currentUser = user;
     // Generate RSA keys for this session
@@ -127,17 +143,19 @@ export function useSocket() {
     }
 
     socketInstance.emit("joinRoom", {
-      roomId, 
+      roomId,
       user,
-      publicKey: myKeysInstance.publicKeyJwk
+      publicKey: myKeysInstance.publicKeyJwk,
+      isCreating
     });
   };
 
   const leaveRoom = (roomId, user) => {
     currentRoomId = null;
     currentUser = null;
+    isCurrentUserHost = false;
     socketInstance.emit("leaveRoom", {
-      roomId, 
+      roomId,
       user
     });
     // console.log("leaveRoom function called successfully");

@@ -15,8 +15,8 @@ function Join() {
   
   const [copiedField, setCopiedField] = useState(null);
   
-  const joincode = useSelector(state => state.locations.joinCode);
-  const joinurl = useSelector(state => state.locations.joinURL);
+  const groupid = useSelector(state => state.locations.groupId);
+  const groupurl = useSelector(state => state.locations.groupURL);
   const user = useSelector(state => state.locations.user);
   const joinVisibility = useSelector(state => state.visibility.joinVisibility);
 
@@ -89,12 +89,12 @@ function Join() {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={joinurl}
+                  value={groupurl}
                   disabled
                   className="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-600 font-mono text-sm"
                 />
                 <button
-                  onClick={() => handleCopy(joinurl, 'url')}
+                  onClick={() => handleCopy(groupurl, 'url')}
                   className="px-4 py-2 border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-50 rounded-lg transition-colors duration-200 focus:outline-none"
                 >
                   {copiedField === 'url' ? (
@@ -111,16 +111,16 @@ function Join() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Join Code</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Group ID</label>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={joincode}
+                  value={groupid}
                   disabled
                   className="flex-1 px-3 py-2 text-base bg-gray-50 border border-gray-300 rounded-lg text-gray-800 font-bold font-mono text-center"
                 />
                 <button
-                  onClick={() => handleCopy(joincode, 'code')}
+                  onClick={() => handleCopy(groupid, 'code')}
                   className="px-4 py-2 border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-50 rounded-lg transition-colors duration-200 focus:outline-none"
                 >
                   {copiedField === 'code' ? (

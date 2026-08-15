@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { registerVisFunc, joinVisFunc } from '../features/visibilitySlice'
 import { useParams } from 'react-router-dom'
 import {Header, Page1, GroupSetup, Page3, Footer, Login, Register, Join, Popup, Map} from "../index.jsx"
-import { setGuest, setJoinCodeURL } from '../features/locationSlice'
+import { setGuest, setGroupIdURL } from '../features/locationSlice'
 
 
 function Guest() {
 
-    const {joinCode} = useParams()
-    // if(!(joinCode.includes("sh") && joinCode.length == 12 ))
-    console.log(joinCode)
+    const {groupId} = useParams()
+    // if(!(groupId.includes("sh") && groupId.length == 12 ))
+    console.log(groupId)
     const dispatch = useDispatch()
     const user = useSelector(state => state.locations.user)
 
@@ -22,9 +22,9 @@ function Guest() {
         dispatch(joinVisFunc())
     }
        dispatch(setGuest())
-       dispatch(setJoinCodeURL({
-        joinCode: joinCode, 
-        joinURL :`${window.location.origin}/jxcd/${joinCode}` }))
+       dispatch(setGroupIdURL({
+        groupId: groupId, 
+        groupURL :`${window.location.origin}/jxcd/${groupId}` }))
    },[dispatch, user])
 
 
@@ -36,7 +36,7 @@ function Guest() {
       {isMapActive ? (
         <Map />
       ) : (
-        true || (joinCode.includes("sh") && joinCode.length == 12 ) ? (<> 
+        true ? (<> 
             <Join/>
             <Login  />
             <Register />

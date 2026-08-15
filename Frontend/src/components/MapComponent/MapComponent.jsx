@@ -23,7 +23,7 @@ const createCustomMarker = (name, msg) => {
       </div>
     `,
     iconSize: [100, 50],
-    iconAnchor: [0,0],
+    iconAnchor: [0, 0],
   });
 };
 
@@ -40,7 +40,7 @@ const TimeAgo = ({ timestamp }) => {
 
   useEffect(() => {
     if (!timestamp) return;
-    
+
     const updateTime = () => {
       const diff = Math.floor((Date.now() - timestamp) / 1000);
       if (diff < 2) setTimeStr('just now');
@@ -56,28 +56,28 @@ const TimeAgo = ({ timestamp }) => {
   return <span>{timeStr}</span>;
 };
 
-function MapComponent({ mapLayer, mapRef, pathCoordinates}) {
+function MapComponent({ mapLayer, mapRef, pathCoordinates }) {
   const mapTilerKey = "A7ggsa5XFdC8i2v2pyJz";
   const group = useSelector(state => state.locations.group);
   const user = useSelector(state => state.locations.user);
   const messages = useSelector(state => state.locations.messages);
 
   const formatSpeed = (mps) => {
-     if (!mps) return "0.0 km/h";
-     return (mps * 3.6).toFixed(1) + " km/h";
+    if (!mps) return "0.0 km/h";
+    return (mps * 3.6).toFixed(1) + " km/h";
   }
 
   const getDirectionText = (degree) => {
-      if (degree === undefined || degree === null) return "N/A";
-      const val = Math.floor((degree / 22.5) + 0.5);
-      const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-      return arr[(val % 16)];
+    if (degree === undefined || degree === null) return "N/A";
+    const val = Math.floor((degree / 22.5) + 0.5);
+    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return arr[(val % 16)];
   }
 
   // Convert path coordinates to Leaflet format [lat, lng]
   // Assuming pathCoordinates is an array like: [{lat, long}, {lat, long}, ...]
-//   const pathPositions = pathCoordinates.map(coord => [coord.lat, coord.long]);
-    // console.log("Path Coordinates in MapComponent:", pathCoordinates);
+  //   const pathPositions = pathCoordinates.map(coord => [coord.lat, coord.long]);
+  // console.log("Path Coordinates in MapComponent:", pathCoordinates);
 
   // Restrict panning beyond the world edges
   const worldBounds = [
@@ -94,39 +94,39 @@ function MapComponent({ mapLayer, mapRef, pathCoordinates}) {
         maxBounds={worldBounds}
         maxBoundsViscosity={1.0}
         style={{ height: "100%", width: "100%", backgroundColor: "#0a0a0a" }}
-        whenReady={(mapInstance) => {mapRef.current = mapInstance; }}
+        whenReady={(mapInstance) => { mapRef.current = mapInstance; }}
       >
         <TileLayer
           url={`${mapLayer}?key=${mapTilerKey}`}
           noWrap={true}
           bounds={worldBounds}
         />
-        
+
         {/* Render all user markers */}
         {
           Object.keys(group).map(key => {
             const { lat, long, name, isActive, speed, heading, accuracy, timestamp } = group[key];
             const msg = messages[name] || ""
-            
+
             const renderTooltip = () => (
-               <Tooltip direction="top" offset={[0, -50]} opacity={0.95}>
-                 <div className="flex flex-col text-sm min-w-[140px]">
-                   <span className="font-bold border-b pb-1 mb-1 capitalize text-blue-600 text-base">{name} {name === user ? '(You)' : ''}</span>
-                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-                       <span className="text-gray-500">Speed:</span> 
-                       <span className="font-semibold text-gray-800">{formatSpeed(speed)}</span>
-                       
-                       <span className="text-gray-500">Heading:</span> 
-                       <span className="font-semibold text-gray-800">{getDirectionText(heading)}</span>
-                       
-                       <span className="text-gray-500">Accuracy:</span> 
-                       <span className="font-semibold text-gray-800">±{accuracy ? Math.round(accuracy) : 0}m</span>
-                       
-                       <span className="text-gray-500">Updated:</span> 
-                       <span className="font-semibold text-green-600"><TimeAgo timestamp={timestamp} /></span>
-                   </div>
-                 </div>
-               </Tooltip>
+              <Tooltip direction="top" offset={[0, -50]} opacity={0.95}>
+                <div className="flex flex-col text-sm min-w-[140px]">
+                  <span className="font-bold border-b pb-1 mb-1 capitalize text-blue-600 text-base">{name} {name === user ? '(You)' : ''}</span>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                    <span className="text-gray-500">Speed:</span>
+                    <span className="font-semibold text-gray-800">{formatSpeed(speed)}</span>
+
+                    <span className="text-gray-500">Heading:</span>
+                    <span className="font-semibold text-gray-800">{getDirectionText(heading)}</span>
+
+                    <span className="text-gray-500">Accuracy:</span>
+                    <span className="font-semibold text-gray-800">±{accuracy ? Math.round(accuracy) : 0}m</span>
+
+                    <span className="text-gray-500">Updated:</span>
+                    <span className="font-semibold text-green-600"><TimeAgo timestamp={timestamp} /></span>
+                  </div>
+                </div>
+              </Tooltip>
             );
 
             return user != name ? (
@@ -164,27 +164,27 @@ function MapComponent({ mapLayer, mapRef, pathCoordinates}) {
         }
         {/* Render the A* path if it exists */}
         {pathCoordinates.length > 0 && (
-        <Polyline
+          <Polyline
             positions={pathCoordinates.map(coord => [coord.lat, coord.lng])}
             color="blue"
             weight={4}
             opacity={0.7}
             smoothFactor={1}
-        />
+          />
         )}
 
         {/* Optional: Add markers at each path node for better visualization */}
         {pathCoordinates.length > 0 && pathCoordinates.map((coord, index) => (
-        <Marker
+          <Marker
             key={`path-node-${index}`}
             position={[coord.lat, coord.lng]}
             icon={L.divIcon({
-            className: 'path-node-marker',
-            html: `<div style="width: 8px; height: 8px; background: red; border: 2px solid white; border-radius: 50%;"></div>`,
-            iconSize: [8, 8],
-            iconAnchor: [4, 4],
+              className: 'path-node-marker',
+              html: `<div style="width: 8px; height: 8px; background: red; border: 2px solid white; border-radius: 50%;"></div>`,
+              iconSize: [8, 8],
+              iconAnchor: [4, 4],
             })}
-        />
+          />
         ))}
         <MapEvents mapRef={mapRef} />
       </MapContainer>
