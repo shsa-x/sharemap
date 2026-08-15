@@ -17,9 +17,13 @@ function App() {
         // Ping health endpoint to wake up server
         fetch(`${SERVER_URL}/health`).catch(e => console.error("Health ping failed", e));
 
+        const token = localStorage.getItem("accessToken");
         const response = await fetch(`${SERVER_URL}/users/current-user`, {
           method: "GET",
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
           credentials: 'include'
         });
         const data = await response.json();

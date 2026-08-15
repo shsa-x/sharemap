@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    user: "",
+    user: localStorage.getItem("user") || "",
     isGuest: false,
-    accessToken: "",
-    refreshToken: "",
+    accessToken: localStorage.getItem("accessToken") || "",
+    refreshToken: localStorage.getItem("refreshToken") || "",
     groupId: "",
     groupURL : "",
     group:{
@@ -60,11 +60,19 @@ export const locationSlice = createSlice({
         },
         setMyName : (state, action) => {
             state.user = action.payload
+            if(action.payload) {
+                localStorage.setItem("user", action.payload);
+            } else {
+                localStorage.removeItem("user");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+            }
         },
         setAccessAndRefreshToken: (state, action) => {
             state.accessToken = action.payload.accessToken
             state.refreshToken = action.payload.refreshToken
-            // console.log(state.accessToken , " " , state.refreshToken)
+            localStorage.setItem("accessToken", action.payload.accessToken);
+            localStorage.setItem("refreshToken", action.payload.refreshToken);
         },
         updateGroup: (state, action) => {
             //locationData = {
