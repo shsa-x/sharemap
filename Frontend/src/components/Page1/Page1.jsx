@@ -130,7 +130,7 @@ function SectionTitle({ title }) {
 
 function Page1() {
   const dispatch = useDispatch();
-  const { joinRoom, leaveRoom } = useSocket();
+  const { joinRoom, leaveRoom, checkRoomExists } = useSocket();
   const user = useSelector((state) => state.locations.user);
   const isGuest = useSelector((state) => state.locations.isGuest);
   const activeGroupId = useSelector((state) => state.locations.groupId);
@@ -180,7 +180,7 @@ function Page1() {
     }
   };
 
-  const joinGroupBtn = () => {
+  const joinGroupBtn = async () => {
     if (!user) {
       dispatch(registerVisFunc());
     } else {
@@ -188,6 +188,13 @@ function Page1() {
         showPopup("Invalid Group ID!", "red");
         return;
       }
+      
+      const exists = await checkRoomExists(groupIdInput);
+      if (!exists) {
+        showPopup("Room does not exist!", "red");
+        return;
+      }
+
       dispatch(
         setGroupIdURL({
           groupId: groupIdInput,
@@ -317,7 +324,13 @@ function Page1() {
 
           <div className="flex flex-wrap gap-4">
             <button 
-              onClick={() => dispatch(registerVisFunc())}
+              onClick={() => {
+                if (user) {
+                  document.getElementById('create-group-section')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  dispatch(registerVisFunc());
+                }
+              }}
               className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#1a1b26] px-8 py-4 text-lg font-bold text-white shadow-md transition-all hover:bg-black hover:scale-[1.02]"
             >
               <MapPin className="size-5" aria-hidden="true" />
@@ -410,7 +423,7 @@ function Page1() {
           ))}
         </ol>
       </section>      {/* Create / Join group */}
-      <section className="mx-auto max-w-7xl px-6 pb-20 md:px-8 relative z-20">
+      <section id="create-group-section" className="mx-auto max-w-7xl px-6 pb-20 md:px-8 relative z-20">
         <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-3xl border-2 border-ink bg-white/70 p-8 shadow-sm">
             <div className="flex items-center gap-3">

@@ -8,6 +8,7 @@ const initialState = {
     signBtnActive: "true",
     logBtnName: "Log In",
     popupVisibility: "invisible",
+    popupHeading: "",
     popupMsg: "All is Well",
     popupColor: "blue"
 }
@@ -30,8 +31,8 @@ export const visibilitySlice = createSlice({
             state.popupVisibility = state.popupVisibility === "invisible" ? "visible" : "invisible"
         }, 
         popupData : (state, action) => {  
-           
             state.popupMsg = action.payload.message
+            state.popupHeading = action.payload.heading || ""
             state.popupColor = action.payload.color
         }      
     }

@@ -161,11 +161,20 @@ export function useSocket() {
     // console.log("leaveRoom function called successfully");
   };
 
+  const checkRoomExists = (roomId) => {
+    return new Promise((resolve) => {
+      socketInstance.emit("check_room", roomId, (response) => {
+        resolve(response.exists);
+      });
+    });
+  };
+
 
 
   return {
     joinRoom,
     leaveRoom,
+    checkRoomExists,
     socketRef: staticSocketRef
   };
 }

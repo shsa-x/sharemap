@@ -404,7 +404,7 @@ function Map() {
               style={{ scrollbarWidth: 'none' }}
             >
               {messages.map((msgObj) => (
-                <div key={msgObj.id} className="flex items-center gap-2.5 bg-white/90 backdrop-blur-lg rounded-2xl px-3.5 py-2 text-gray-900 animate-fadeIn border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 w-fit max-w-[280px] sm:max-w-[320px] hover:bg-white">
+                <div key={msgObj.id} className="flex items-center gap-2.5 bg-[#1a1b26]/90 backdrop-blur-lg rounded-2xl px-3.5 py-2 text-white animate-fadeIn border border-[#1a1b26] shadow-[0_4px_24px_rgba(0,0,0,0.2)] transition-all duration-300 w-fit max-w-[280px] sm:max-w-[320px] hover:bg-[#1a1b26]">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold flex-shrink-0 text-white text-xs shadow-inner overflow-hidden">
                     {msgObj.avatar ? (
                       <img src={msgObj.avatar} alt={msgObj.senderName} className="w-full h-full object-cover" />
@@ -413,8 +413,8 @@ function Map() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0 leading-snug text-[13.5px]">
-                    <span className="font-bold text-gray-800 mr-1.5">{msgObj.senderName}</span>
-                    <span className="break-words text-gray-600 font-medium">{msgObj.message}</span>
+                    <span className="font-bold text-white mr-1.5">{msgObj.senderName}</span>
+                    <span className="break-words text-gray-200 font-medium">{msgObj.message}</span>
                   </div>
                 </div>
               ))}

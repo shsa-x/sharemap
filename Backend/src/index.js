@@ -143,6 +143,14 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit("receive_message", data);
     });
 
+    socket.on("check_room", (roomId, callback) => {
+        if (activeRooms[roomId]) {
+            callback({ exists: true });
+        } else {
+            callback({ exists: false });
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log(`[disconnect] Socket disconnected: ${socket.id}`);
         // Cleanup activeRooms on disconnect
